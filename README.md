@@ -4,7 +4,7 @@
 
 A compile-based HTTP request router.
 
-The `endpoint-routing` package contains functionality to translate the project directory into the endpoints of your web server, with support for URL variables, conditional path imports, and mock HTTP calls. Built with the `express` library in mind.
+The `endpoint-routing` package contains functionality to translate the project directory into the endpoints of your web server, with support for URL variables, conditional path imports, and mock HTTP calls.
 
 Example project endpoint directory structure:
 
@@ -31,14 +31,27 @@ endpoints/
 This is the expected format of an `index.js` file contained within an endpoint directory.
 
 ```javascript
+/*
+export default {
+    [METHOD]: (req, res) => {
+        // ... your endpoint function code ...
+    }
+};
+*/
+
 export default {
     GET: (req, res) => {
-        // Example GET method endpoint
+        // Example GET method endpoint:
+        // In this example, nothing is passed back to express middleware
+        // and the request is handled internally.
         res.status(200).send(`<h1>Success</h1>`);
         return 0;
     },
     POST: (req, res) => {
-        // Example POST method endpoint
+        // Example POST method endpoint:
+        // In this example, data is passed back to the express middleware
+        // calling this endpoint for further processing. Useful for chaining
+        // endpoint calls together.
         return { message: "Success" }
     }
 };
@@ -102,6 +115,7 @@ app.use(async (req, res, next) => {
     const path = req.path;
     const method = req.method;
     const result = await routing.simulatePathRequest(path, method, req, res);
+    // Additional processing ...
 });
 ```
 
@@ -109,7 +123,7 @@ app.use(async (req, res, next) => {
 
 ### URL Variables -
 
-When defining the endpoint paths in your project files, you can wrap pathnames with square brackets to indicate variables.
+When defining the endpoint paths in your project files, you can wrap pathnames with square brackets to indicate variables, similar to that of `/:variable` in traditional middleware.
 
 ```
 endpoints/
