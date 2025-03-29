@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "A compile based HTTP request router.",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -14,6 +15,7 @@
   ],
   "dependencies": {
     "fs": "^0.0.1-security",
-    "path": "^0.12.7"
+    "path": "^0.12.7",
+    "url": "^0.11.4"
   }
 }

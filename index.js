@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { pathToFileURL } from 'url';
 
 /*
     █▀▄▀█ ▄▀█ █▄▀ █ █▄░█ █▀▀   █▀█ █▀▀ █▀█ █░█ █▀▀ █▀ ▀█▀ █▀
@@ -112,7 +113,8 @@ class EndpointRouting {
         }
 
         // Interpret the path for a matching endpoint directory
-        const routeNode = matchRoute(this.#routeRegistry, path, req);
+        const _req = req || {};
+        const routeNode = matchRoute(this.#routeRegistry, path, _req);
         if (!validRouteNode(routeNode, method)) throw new Error();
     
         // Retrieve the attached endpoint function
@@ -142,7 +144,10 @@ class EndpointRouting {
  * @returns {Object} The "export default" signature of a specific file.
  */
 async function retrieveModuleFromFile(filePath) {
-    const module = await import(filePath);
+    // Resolve to absolute path from project root
+    const absolutePath = path.resolve(filePath);
+    const fileURL = pathToFileURL(absolutePath).href;
+    const module = await import(fileURL);
     return module;
 }
 
@@ -174,22 +179,18 @@ function retrieveHandlerFromModule(module, method) {
  * @returns {Object|null} Returns the matching route object (which should contain method keys) or null if no match.
  */
 const matchRoute = (routeRegistry, path, req = {}) => {
-    // Split the request path into segments (ignoring empty segments)
     const segments = path.split('/').filter(Boolean);
     let currentLevel = routeRegistry;
     const params = {};
-  
+
     for (const segment of segments) {
         const exactKey = '/' + segment;
         if (currentLevel.hasOwnProperty(exactKey)) {
-            // Found an exact match for the current segment
             currentLevel = currentLevel[exactKey];
         } else {
-            // Look for a dynamic key: one that starts with "/:"
             let foundDynamic = false;
             for (const key in currentLevel) {
                 if (key.startsWith('/:')) {
-                    // For a key like "/:customerID", extract the parameter name ("customerID")
                     const paramName = key.slice(2);
                     params[paramName] = segment;
                     currentLevel = currentLevel[key];
@@ -198,15 +199,16 @@ const matchRoute = (routeRegistry, path, req = {}) => {
                 }
             }
             if (!foundDynamic) {
-                // No matching segment found
                 return null;
             }
         }
     }
-    // Inject the extracted parameters into req.params (assuming express based request)
-    if (req.params) {
+
+    // Inject dynamic parameters into req.params
+    if (req) {
         req.params = { ...req.params, ...params };
     }
+
     return currentLevel;
 };
 
@@ -261,16 +263,26 @@ const buildEndpointRoutes = async (args) => {
     const pathBlacklist = args['pathBlacklist'] || null;
     const debug = args['debug'] || false;
 
-    // Discover and compile all of the endpoint routes
-    if (debug === true) console.log(`Searching for routes in '${handlersDir}' folder...`);
-    const nestedRoutes = {};
-    const handlersDirPath = path.join(path.resolve(), handlersDir);
-    await loadRoutes(nestedRoutes, handlersDirPath, pathBlacklist, '', debug);
+    if (debug === true) console.log(`\n=====\nBegun Compiling Routes\n=====\n`);
 
-    // Write them all to a discoverable routes file
-    if (debug === true) console.log(`Writing routes to ${configOutput}...`);
-    fs.writeFileSync(configOutput, JSON.stringify(nestedRoutes, null, 2));
-    if (debug === true) console.log(`Routes compiled successfully and saved to ${configOutput}!`);
+    try {
+        // Discover and compile all of the endpoint routes
+        const nestedRoutes = {};
+        const handlersDirPath = path.join(path.resolve(), handlersDir);
+        if (debug === true) console.log(`Searching for routes in '${handlersDirPath}' folder...`);
+        await loadRoutes(nestedRoutes, handlersDirPath, pathBlacklist, '', debug);
+    
+        // Write them all to a discoverable routes file
+        if (debug === true) console.log(`Writing routes to ${configOutput}...`);
+        fs.writeFileSync(configOutput, JSON.stringify(nestedRoutes, null, 2));
+        if (debug === true) console.log(`Routes compiled successfully and saved to ${configOutput}!`);
+    } catch (e) {
+        // Throw the error to the console
+        console.error(e);
+    } finally {
+        // Indicate the conclusion of the script, one way or another
+        if (debug === true) console.log(`\n=====\nConcluded Compiling Routes\n=====\n`);
+    }
 }
 
 /**
@@ -291,16 +303,18 @@ async function loadRoutes(nestedRoutes, dir, pathBlacklist, basePath, debug) {
         
         if (stat.isDirectory()) {
             // Skip any endpoint paths mentioned within the path blacklist
-            if (pathBlacklist.indexOf(file) >= 0) {
+            if (Array.isArray(pathBlacklist) && pathBlacklist.includes(file)) {
                 if (debug === true) console.log(`Skipping directory ${file} as defined within the path blacklist`);
                 continue;
             }
             
             // ... otherwise, continue to traverse the path
             const currentPath = basePath + '/' + file;
-            await loadRoutes(fullPath, currentPath, pathBlacklist, basePath);
+            await loadRoutes(nestedRoutes, fullPath, pathBlacklist, currentPath, debug);
         } else if (file === 'index.js') {
             try {
+                if (debug === true) console.log(`Found file ${fullPath}`);
+
                 // Dynamically import the module to verify it exports a valid object
                 const routeModule = await import(`file://${fullPath}`);
                 
@@ -314,7 +328,8 @@ async function loadRoutes(nestedRoutes, dir, pathBlacklist, basePath, debug) {
                 // For each HTTP method defined in the module, store the file path
                 for (const [method, handler] of Object.entries(routeModule.default)) {
                     // We are not stringifying the function. Instead, we store its file path
-                    insertRoute(nestedRoutes, routePath, method, fullPath);
+                    const relativeFilePath = path.relative(process.cwd(), fullPath).replace(/\\/g, '/');
+                    insertRoute(nestedRoutes, routePath, method, relativeFilePath);
                 }
                 if (debug === true) console.log(`Registered route: ${routePath}`);
             } catch (error) {

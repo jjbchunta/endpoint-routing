@@ -1,4 +1,4 @@
-# @jjbchunta/endpoint-routing
+# endpoint-routing
 
 ![Version](https://img.shields.io/badge/Version-1.0.0-brightgreen)
 
@@ -35,7 +35,7 @@ export default {
     GET: (req, res) => {
         // Example GET method endpoint
         res.status(200).send(`<h1>Success</h1>`);
-        return;
+        return 0;
     },
     POST: (req, res) => {
         // Example POST method endpoint
@@ -49,7 +49,7 @@ All supported HTTP methods can be included, all with their respective function d
 ### Compiling the endpoint routes -
 
 ```javascript
-import { buildEndpointRoutes } from '@jjbchunta/endpoint-routing';
+import { buildEndpointRoutes } from 'endpoint-routing';
 
 (async () => {
     // Compile the endpoint routes.
@@ -73,7 +73,7 @@ An example middleware flow of checking to ensure that the request path actually 
 
 ```javascript
 import express from 'express';
-import endpointRouting from '@jjbchunta/endpoint-routing';
+import endpointRouting from 'endpoint-routing';
 
 // Initializing Express
 const app = express();
