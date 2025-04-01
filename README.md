@@ -1,8 +1,8 @@
 # endpoint-routing
 
-![Version](https://img.shields.io/badge/Version-1.0.0-brightgreen)
+![Version](https://img.shields.io/badge/Version-1.0.3-brightgreen)
 
-A compile-based HTTP request router.
+A directory-based HTTP request router.
 
 The `endpoint-routing` package contains functionality to translate the project directory into the endpoints of your web server, with support for URL variables, conditional path imports, and mock HTTP calls.
 
@@ -67,8 +67,8 @@ import { buildEndpointRoutes } from 'endpoint-routing';
 (async () => {
     // Compile the endpoint routes.
     const args = {
-        configOutput: 'routes.json', // (Required) The name of the file where the compiled routes should be written to
-        handlersDir: 'endpoints', // (Required) The parent folder we're compiling these endpoints from
+        configOutput: 'routes.json', // The name of the file where the compiled routes should be written to
+        handlersDir: 'endpoints', // The parent folder we're compiling these endpoints from
         pathBlacklist: ['dev'], // Endpoint paths to exclude
         debug: true, // Log status updates
     };
@@ -93,8 +93,8 @@ const app = express();
 
 // Initializing the endpoint router
 const routing = endpointRouting({
-    routesConfig: 'routes.json', // (Required) The compiled routes JSON file
-    handlersDir: 'endpoints', // (Required) The endpoint directory
+    routesConfig: 'routes.json', // The compiled routes JSON file
+    handlersDir: 'endpoints', // The endpoint directory
     allowedMethods: ['GET', 'POST'] // HTTP method whitelist
 });
 
@@ -118,6 +118,8 @@ app.use(async (req, res, next) => {
     // Additional processing ...
 });
 ```
+
+**Note** - If either the `configOutput` / `routesConfig` or the `handlersDir` is left blank, "routes.json" and "endpoints" respectively will be the assumed values.
 
 # Additional Features
 
