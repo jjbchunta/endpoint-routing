@@ -1,13 +1,17 @@
 {
   "name": "endpoint-routing",
-  "version": "1.0.0",
-  "description": "A compile based HTTP request router.",
+  "version": "1.0.1",
+  "description": "A directory-based HTTP request router.",
   "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jjbchunta/endpoint-routing"
+  },
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
+  "keywords": ["express", "http", "nodejs"],
   "author": "Joseph Chunta <jjbchunta@gmail.com>",
   "license": "MIT",
   "files": [
