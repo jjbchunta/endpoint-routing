@@ -1,6 +1,6 @@
 # endpoint-routing
 
-![Version](https://img.shields.io/badge/Version-1.0.3-brightgreen)
+![Version](https://img.shields.io/badge/Version-1.0.5-brightgreen)
 
 A directory-based HTTP request router.
 
