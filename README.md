@@ -58,12 +58,15 @@ A call to `buildEndpointRoutes` will construct an optimized index of all the exp
 import { buildEndpointRoutes } from 'endpoint-routing'
 
 (async () => {
-    // Compile the endpoint routes.
     const args = {
-        configOutput: 'routes.json', // The name of the file where the compiled routes should be written to
-        handlersDir: 'endpoints', // The parent folder we're compiling these endpoints from
-        pathBlacklist: ['dev'], // Endpoint paths to exclude
-        debug: true, // Log status updates
+        // The relative path to the file where the compiled routes should be written to
+        configOutput: 'routes.json',
+        // The parent folder we're compiling these endpoints from
+        handlersDir: 'endpoints',
+        // Endpoint paths to exclude
+        pathBlacklist: ['dev'],
+        // Log status updates
+        debug: true,
     }
     await buildEndpointRoutes(args)
 })()
