@@ -78,19 +78,11 @@ import { buildEndpointRoutes } from 'endpoint-routing';
 
 ```javascript
 import express from 'express';
-import endpointRouting from 'endpoint-routing';
+import initializeRouting from 'endpoint-routing';
 
 const app = express();
+initializeRouting(app, 'routes.json');
 
-// Initializing the endpoint router
-const routingConfig = {
-    routesConfig: 'routes.json', // The compiled routes JSON file
-    handlersDir: 'endpoints', // The endpoint directory
-    allowedMethods: ['GET', 'POST'] // HTTP method whitelist
-};
-endpointRouting(app, routingConfig);
-
-// Preform a get request with routing
 app.getWithRouting();
 ```
 
