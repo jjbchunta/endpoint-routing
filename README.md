@@ -44,20 +44,18 @@ The HTTP request method (in all caps) is the key, with the anonymous function as
 export default {
     // Example GET method endpoint:
     GET: (req, res, next) => {
-        res.status(200).send(`<h1>Success</h1>`);
-        next();
+        res.status(200).send(`<h1>Success</h1>`)
+        next()
     }
-};
+}
 ```
 
 ### Compiling the endpoint routes
 
 A call to `buildEndpointRoutes` will construct an optimized index of all the exposed endpoints incoming requests can utilize.
 
-In this example, this is a lone file that can be manually ran with the `node` command. Or if you're using Docker, you can hook it to run on `scripts.deploy` inside of your project's `package.json` to generate on deployment.
-
 ```javascript
-import { buildEndpointRoutes } from 'endpoint-routing';
+import { buildEndpointRoutes } from 'endpoint-routing'
 
 (async () => {
     // Compile the endpoint routes.
@@ -66,10 +64,12 @@ import { buildEndpointRoutes } from 'endpoint-routing';
         handlersDir: 'endpoints', // The parent folder we're compiling these endpoints from
         pathBlacklist: ['dev'], // Endpoint paths to exclude
         debug: true, // Log status updates
-    };
-    await buildEndpointRoutes(args);
-})();
+    }
+    await buildEndpointRoutes(args)
+})()
 ```
+
+In this example, this is a lone file that can be manually ran with the `node` command. Or if you're using Docker, you can hook it to run on `scripts.deploy` inside of your project's `package.json` to generate on deployment.
 
 > [!NOTE]
 > This points to the endpoint files instead of storing a copy of the functions, so updates to the callback don't require a re-compile of the routes.
@@ -77,38 +77,29 @@ import { buildEndpointRoutes } from 'endpoint-routing';
 ### Now, you're all set up to preform a request!
 
 ```javascript
-import express from 'express';
-import initializeRouting from 'endpoint-routing';
+import express from 'express'
+import initializeRouting from 'endpoint-routing'
 
-const app = express();
-initializeRouting(app, 'routes.json');
+const app = express()
+initializeRouting(app, 'routes.json')
 
-app.getWithRouting();
+app.getWithRouting()
+
+app.listen(3000)
 ```
 
 All respective request methods have equivalent `*WithRouting` versions, which handle pointing to the desired endpoint, such as:
 
-* `getWithRouting();`
-* `postWithRouting();`
-* `putWithRouting();`
-* `deleteWithRouting();`
-
-Optionally, you can check that the endpoint at that path and request method exists before continuing.
-
-``` javascript
-app.use(async (req, res, next) => {
-    const doesEndpointExist = await app.doesEndpointExist(req.path, req.method);
-    if (!doesEndpointExist) {
-        req.status(404).json({error: "Route not found."});
-        return;
-    }
-    next();
-});
-```
+* `getWithRouting()`
+* `postWithRouting()`
+* `putWithRouting()`
+* `deleteWithRouting()`
+* `patchWithRouting()`
+* `useWithRouting()`
 
 # Additional Features
 
-### URL Variables -
+### URL Variables
 
 When defining the endpoint paths in your project files, you can wrap pathnames with square brackets to indicate variables, similar to that of `/:variable` in traditional middleware.
 
@@ -129,4 +120,19 @@ Will translate into this under `req.params`:
 
 ```javascript
 { userId: "4124" }
+```
+
+### Check endpoint existance
+
+Optionally, you can check that the endpoint at the requested path and method exists before continuing in your middleware.
+
+``` javascript
+app.use(async (req, res, next) => {
+    const doesEndpointExist = await app.doesEndpointExist(req.path, req.method)
+    if (!doesEndpointExist) {
+        req.status(404).json({error: "Route not found."})
+        return
+    }
+    next()
+})
 ```
