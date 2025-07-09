@@ -1,6 +1,6 @@
 # A directory-based HTTP request router.
 
-![Version](https://img.shields.io/badge/Version-2.0.0-brightgreen)
+![Version](https://img.shields.io/badge/Version-2.0.1-brightgreen)
 
 The `endpoint-routing` package contains functionality to translate your project directory into the endpoints of your express web server. With support for URL variables, conditional path imports, and mock HTTP calls.
 
@@ -57,19 +57,17 @@ A call to `buildEndpointRoutes` will construct an optimized index of all the exp
 ```javascript
 import { buildEndpointRoutes } from 'endpoint-routing'
 
-(async () => {
-    const args = {
-        // The relative path to the file where the compiled routes should be written to
-        configOutput: 'routes.json',
-        // The parent folder we're compiling these endpoints from
-        handlersDir: 'endpoints',
-        // Endpoint paths to exclude
-        pathBlacklist: ['dev'],
-        // Log status updates
-        debug: true,
-    }
-    await buildEndpointRoutes(args)
-})()
+const args = {
+    // The relative path to the file where the compiled routes should be written to
+    configOutput: 'routes.json',
+    // The parent folder we're compiling these endpoints from
+    handlersDir: 'endpoints',
+    // Endpoint paths to exclude
+    pathBlacklist: ['dev'],
+    // Log status updates
+    debug: true,
+}
+await buildEndpointRoutes(args)
 ```
 
 In this example, this is a lone file that can be manually ran with the `node` command. Or if you're using Docker, you can hook it to run on `scripts.deploy` inside of your project's `package.json` to generate on deployment.
