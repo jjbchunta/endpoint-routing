@@ -1,6 +1,6 @@
 # A directory-based HTTP request router.
 
-![Version](https://img.shields.io/badge/Version-2.0.1-brightgreen)
+![Version](https://img.shields.io/badge/Version-2.0.2-brightgreen)
 
 The `endpoint-routing` package contains functionality to translate your project directory into the endpoints of your express web server. With support for URL variables, conditional path imports, and mock HTTP calls.
 
