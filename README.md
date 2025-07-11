@@ -1,6 +1,6 @@
 # A directory-based HTTP request router.
 
-![Version](https://img.shields.io/badge/Version-2.0.3-brightgreen)
+![Version](https://img.shields.io/badge/Version-2.1.0-brightgreen)
 
 The `endpoint-routing` package contains functionality to translate your project directory into the endpoints of your express web server. With support for URL variables, conditional path imports, and mock HTTP calls.
 
@@ -59,9 +59,9 @@ import { buildEndpointRoutes } from 'endpoint-routing'
 
 const args = {
     // The relative path to the file where the compiled routes should be written to
-    configOutput: 'routes.json',
+    output: 'routes.json',
     // The parent folder we're compiling these endpoints from
-    handlersDir: 'endpoints',
+    endpoints: 'endpoints',
     // Endpoint paths to exclude
     pathBlacklist: ['dev'],
     // Log status updates
@@ -128,8 +128,8 @@ Will translate into this under `req.params`:
 Optionally, you can check that the endpoint at the requested path and method exists before continuing in your middleware.
 
 ``` javascript
-app.use(async (req, res, next) => {
-    const doesEndpointExist = await app.doesEndpointExist(req.path, req.method)
+app.use((req, res, next) => {
+    const doesEndpointExist = app.doesEndpointExist(req.path, req.method)
     if (!doesEndpointExist) {
         req.status(404).json({error: "Route not found."})
         return
