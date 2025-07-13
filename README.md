@@ -14,45 +14,35 @@ npm install endpoint-routing
 
 ### Structuring your project
 
-You begin by desginating a folder in your project to defining the endpoints that will be exposed by your web server, where the path up to the `index.js` file is the URL path.
+The first step is to reserve a folder specifically for the endpoints of your server, with the name of the files in each directory being the HTTP method used to access it's contents, and the file extension being how it's interpreted. An example endpoints directory would look like:
 
 ```
 endpoints/
-├── index.js
+├── get.html (The Homepage)
 ├── dashboard/
-│   ├── index.js
+│   ├── get.js
 │   ╰── settings/
-│       ╰── index.js
+│       ├── get.js
+│       ╰── post.js
 ├── users/
 │   ╰── [userId]/
-│       ╰── index.js
+│       ╰── get.js
 ├── login/
-│   ╰── index.js
+│   ╰── get.html
 ╰── register/
-    ╰── index.js
+    ╰── get.html
 ```
 
-When we're finished setting up your project, the directory path `./endpoints/dashboard/settings/index.js` is translated to `domain.com/dashboard/settings` for your web server.
+When we're finished setting up your project, the directory path `./endpoints/dashboard/settings/get.js` is translated to `domain.com/dashboard/settings` for your web server.
 
-### Defining endpoint functions
+The file names can be any of the primary HTTP methods, and the supported file extensions are as follows:
 
-Inside of every `index.js` file that suffixes any directory path, the middleware callback exists as a key / value relationship inside of `export default`.
-
-The HTTP request method (in all caps) is the key, with the anonymous function as the value which you would format like you would any other middleware function.
-
-```javascript
-export default {
-    // Example GET method endpoint:
-    GET: (req, res, next) => {
-        res.status(200).send(`<h1>Success</h1>`)
-        next()
-    }
-}
-```
+* **.js** JavaScript Files - If a callable function is exposed in the `export default` section of the file, it will be invoked with `(req, res, next)` passed in as parameters
+* **.html** HTML - Simply returns the contents of the document
 
 ### Compiling the endpoint routes
 
-A call to `buildEndpointRoutes` will construct an optimized index of all the exposed endpoints incoming requests can utilize.
+A call to `buildEndpointRoutes` will construct a registry of all the exposed endpoints incoming requests can utilize.
 
 ```javascript
 import { buildEndpointRoutes } from 'endpoint-routing'
@@ -128,8 +118,8 @@ Will translate into this under `req.params`:
 Optionally, you can check that the endpoint at the requested path and method exists before continuing in your middleware.
 
 ``` javascript
-app.use((req, res, next) => {
-    const doesEndpointExist = app.doesEndpointExist(req.path, req.method)
+app.use(async (req, res, next) => {
+    const doesEndpointExist = await app.doesEndpointExist(req.path, req.method)
     if (!doesEndpointExist) {
         req.status(404).json({error: "Route not found."})
         return
