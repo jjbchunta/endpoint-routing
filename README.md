@@ -38,7 +38,7 @@ When we're finished setting up your project, the directory path `./endpoints/das
 The file names can be any of the primary HTTP methods, and the supported file extensions are as follows:
 
 * **.js / .mjs / .cjs** JavaScript Files - If a callable function is the default export of the file, it will be invoked with `(req, res, next)` passed in as parameters
-* **.html** HTML - Simply returns the contents of the document
+* **.html** HTML - Render an HTML file (This requires you to define an engine with Express)
 
 ### Compiling the endpoint routes
 
