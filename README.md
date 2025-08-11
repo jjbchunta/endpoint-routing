@@ -1,6 +1,6 @@
 # A directory-based HTTP request router.
 
-![Version](https://img.shields.io/badge/Version-2.1.0-brightgreen)
+![Version](https://img.shields.io/badge/Version-2.1.0.1-brightgreen)
 
 The `endpoint-routing` package contains functionality to translate your project directory into the endpoints of your express web server. With support for URL variables, conditional path imports, and mock HTTP calls.
 
@@ -10,37 +10,73 @@ You can install this package via npm:
 npm install endpoint-routing
 ```
 
+### Table of Contents
+
+* [Usage](#usage)
+* [Structuring your endpoint files](#structuring-your-endpoint-files)
+* [Pre-compiling routes](#pre-compiling-routes)
+* [Additional features](#additional-features)
+    * [URL variables](#url-variables)
+    * [Endpoint existance checks](#endpoint-existance-checks)
+
 # Usage
 
-### Structuring your project
-
-The first step is to reserve a folder specifically for the endpoints of your server, with the name of the files in each directory being the HTTP method used to access it's contents, and the file extension being how it's interpreted. An example endpoints directory would look like:
+With a dedicated `endpoints` directory...
 
 ```
 endpoints/
 ├── get.html (The Homepage)
 ├── dashboard/
 │   ├── get.js
-│   ╰── settings/
+│   └── settings/
 │       ├── get.js
-│       ╰── post.js
+│       └── post.js
 ├── users/
-│   ╰── [userId]/
-│       ╰── get.js
+│   └── [userId]/
+│       └── get.js
 ├── login/
-│   ╰── get.html
-╰── register/
-    ╰── get.html
+│   └── get.html
+└── register/
+    └── get.html
 ```
+
+...endpoints become immediately accessable. No middleware needed.
+
+```javascript
+import express from 'express'
+import initializeRouting from 'endpoint-routing'
+
+const app = express()
+initializeRouting(app)
+
+app.getWithRouting()
+
+app.listen(3000)
+```
+
+All respective request methods have equivalent `*WithRouting` versions, which handle pointing to the desired endpoint, such as:
+
+* `getWithRouting()`
+* `postWithRouting()`
+* `putWithRouting()`
+* `deleteWithRouting()`
+* `patchWithRouting()`
+* `useWithRouting()`
+
+# Structuring your endpoint files
+
+The first step is to reserve a folder specifically for the endpoints of your server, with the name of the files in each directory being the HTTP method used to access it's contents, and the file extension being how it's interpreted. An example endpoints directory would look like:
 
 When we're finished setting up your project, the directory path `./endpoints/dashboard/settings/get.js` is translated to `domain.com/dashboard/settings` for your web server.
 
 The file names can be any of the primary HTTP methods, and the supported file extensions are as follows:
 
-* **.js / .mjs / .cjs** JavaScript Files - If a callable function is the default export of the file, it will be invoked with `(req, res, next)` passed in as parameters
+* **.js / .mjs / .cjs** JavaScript Files - If a callable function is the default export of the file, it will be invoked with `(req, res)` passed in as parameters, with the third parameter being used for the `next` callback if the callback takes three parameters
 * **.html** HTML - Render an HTML file (This requires you to define an engine with Express)
 
-### Compiling the endpoint routes
+# Pre-compiling routes
+
+With the current implementation, without any pre-computation of our routes, incoming requests directly traverse the `endpoints` folder to see if a route is valid. Of which, you don't need me to tell you that is hardly efficient.
 
 A call to `buildEndpointRoutes` will construct a registry of all the exposed endpoints incoming requests can utilize.
 
@@ -65,32 +101,23 @@ In this example, this is a lone file that can be manually ran with the `node` co
 > [!NOTE]
 > This points to the endpoint files instead of storing a copy of the functions, so updates to the callback don't require a re-compile of the routes.
 
-### Now, you're all set up to preform a request!
+### Now, you're all set up to preform a(n efficient) request!
 
 ```javascript
 import express from 'express'
 import initializeRouting from 'endpoint-routing'
 
 const app = express()
-initializeRouting(app, 'routes.json')
+initializeRouting(app, 'routes.json') // Linked pre-compiled routes
 
 app.getWithRouting()
 
 app.listen(3000)
 ```
 
-All respective request methods have equivalent `*WithRouting` versions, which handle pointing to the desired endpoint, such as:
+# Additional features
 
-* `getWithRouting()`
-* `postWithRouting()`
-* `putWithRouting()`
-* `deleteWithRouting()`
-* `patchWithRouting()`
-* `useWithRouting()`
-
-# Additional Features
-
-### URL Variables
+### URL variables
 
 When defining the endpoint paths in your project files, you can wrap pathnames with square brackets to indicate variables, similar to that of `/:variable` in traditional middleware.
 
@@ -113,7 +140,7 @@ Will translate into this under `req.params`:
 { userId: "4124" }
 ```
 
-### Check endpoint existance
+### Endpoint existance checks
 
 Optionally, you can check that the endpoint at the requested path and method exists before continuing in your middleware.
 
