@@ -1,6 +1,6 @@
 {
   "name": "endpoint-routing",
-  "version": "2.1.0.1",
+  "version": "2.1.1",
   "route-alg-version": 2,
   "description": "A directory-based HTTP request router.",
   "main": "index.js",
