@@ -1,6 +1,6 @@
 # A directory-based HTTP request router.
 
-![Version](https://img.shields.io/badge/Version-2.1.1-brightgreen)
+![Version](https://img.shields.io/badge/Version-2.1.2-brightgreen)
 
 The `endpoint-routing` package contains functionality to translate your project directory into the endpoints of your express web server. With support for URL variables, conditional path imports, and mock HTTP calls.
 
@@ -123,9 +123,9 @@ When defining the endpoint paths in your project files, you can wrap pathnames w
 
 ```
 endpoints/
-╰── users/
-    ╰── [userId]/
-        ╰── index.js
+└── users/
+    └── [userId]/
+        └── index.js
 ```
 
 The value within the URL will be injected into the Express-provided request object under the `params` key. For example, a request to this:
